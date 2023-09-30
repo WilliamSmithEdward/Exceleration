@@ -10,7 +10,7 @@
 		<PackageReadmeFile>nugetREADME.md</PackageReadmeFile>
 		<RepositoryUrl></RepositoryUrl>
 		<PackageProjectUrl>https://github.com/WilliamSmithEdward/SharpAutomation</PackageProjectUrl>
-		<PackageTags>sharp;automation;email;notifications;exceptionhandling;async</PackageTags>
+		<PackageTags>excel;exceldatareader;workbook;worksheet;spreadsheet;automation;async</PackageTags>
 		<Deterministic>false</Deterministic>
 		<AssemblyVersion>1.0.0</AssemblyVersion>
 		<PackageVersion>1.0.0</PackageVersion>
