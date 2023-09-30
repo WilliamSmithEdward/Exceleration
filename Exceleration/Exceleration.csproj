@@ -16,6 +16,8 @@
 		<PackageVersion>1.0.0</PackageVersion>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIcon>Exceleration.png</PackageIcon>
+		<Copyright>William Edward Smith, 2023</Copyright>
+		<Title>Exceleration</Title>
 	</PropertyGroup>
 
 	<ItemGroup>
