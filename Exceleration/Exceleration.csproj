@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Description>Exceleration is a C# library that wraps ExcelDataReader. It helps you better interact with Excel files by simplifying the development experience.</Description>
+		<PackageReadmeFile>nugetREADME.md</PackageReadmeFile>
+		<RepositoryUrl></RepositoryUrl>
+		<PackageProjectUrl>https://github.com/WilliamSmithEdward/SharpAutomation</PackageProjectUrl>
+		<PackageTags>sharp;automation;email;notifications;exceptionhandling;async</PackageTags>
+		<Deterministic>false</Deterministic>
+		<AssemblyVersion>1.0.0</AssemblyVersion>
+		<PackageVersion>1.0.0</PackageVersion>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\nugetREADME.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+</Project>
