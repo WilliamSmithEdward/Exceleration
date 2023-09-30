@@ -9,19 +9,29 @@
 		<Description>Exceleration is a C# library that wraps ExcelDataReader. It helps you better interact with Excel files by simplifying the development experience.</Description>
 		<PackageReadmeFile>nugetREADME.md</PackageReadmeFile>
 		<RepositoryUrl></RepositoryUrl>
-		<PackageProjectUrl>https://github.com/WilliamSmithEdward/SharpAutomation</PackageProjectUrl>
+		<PackageProjectUrl>https://github.com/WilliamSmithEdward/Exceleration</PackageProjectUrl>
 		<PackageTags>excel;exceldatareader;workbook;worksheet;spreadsheet;automation;async</PackageTags>
 		<Deterministic>false</Deterministic>
 		<AssemblyVersion>1.0.0</AssemblyVersion>
 		<PackageVersion>1.0.0</PackageVersion>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageIcon>Exceleration.png</PackageIcon>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Include="..\nugetREADME.md">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
+	  <PackageReference Include="ExcelDataReader" Version="3.6.0" />
+	  <PackageReference Include="ExcelDataReader.DataSet" Version="3.6.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="Exceleration.png">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	  <None Update="nugetREADME.md">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
 	</ItemGroup>
 
 </Project>
