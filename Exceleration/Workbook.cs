@@ -26,7 +26,7 @@ namespace Exceleration
 
             foreach (DataTable table in result.Tables)
             {
-                Sheets.Add(new Worksheet(table));
+                Sheets.Add(new Worksheet(table, this));
             }
         }
 

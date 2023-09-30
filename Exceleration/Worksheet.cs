@@ -6,12 +6,30 @@ namespace Exceleration
     public class Worksheet
     {
         internal DataTable DataTable { get; set; }
+        public Workbook Parent { get; private set; }
         public string Name { get; private set; }
         
-        internal Worksheet(DataTable table)
+        internal Worksheet(DataTable table, Workbook parent)
         {
             DataTable = table;
+            Parent = parent;
             Name = table.TableName;
+        }
+
+        public List<Cell> Cells
+        {
+            get
+            {
+                List<Cell> allCells = new List<Cell>();
+                for (int rowIndex = 0; rowIndex < DataTable.Rows.Count; rowIndex++)
+                {
+                    for (int colIndex = 0; colIndex < DataTable.Columns.Count; colIndex++)
+                    {
+                        allCells.Add(GetCell(rowIndex, colIndex));
+                    }
+                }
+                return allCells;
+            }
         }
 
         public Cell this[string cellAddress]
@@ -43,6 +61,82 @@ namespace Exceleration
         {
             var (row, col) = ConvertFromA1Style(a1Reference);
             return GetCell(row, col);
+        }
+
+        public object GetCellValue(int rowIndex, int colIndex)
+        {
+            if (rowIndex < 0 || rowIndex >= DataTable.Rows.Count ||
+                colIndex < 0 || colIndex >= DataTable.Columns.Count)
+            {
+                throw new ArgumentOutOfRangeException("Invalid row or column index.");
+            }
+
+            return DataTable.Rows[rowIndex][colIndex];
+        }
+
+        public object GetCellValue(string cellAddress)
+        {
+            int colIndex = 0;
+            int rowIndex = 0;
+            int multiplier = 1;
+            for (int i = cellAddress.Length - 1; i >= 0; i--)
+            {
+                char ch = cellAddress[i];
+                if (Char.IsLetter(ch))
+                {
+                    colIndex += (ch - 'A' + 1) * multiplier;
+                    multiplier *= 26;
+                }
+                else if (Char.IsDigit(ch))
+                {
+                    rowIndex = rowIndex * 10 + (ch - '0');
+                }
+                else
+                {
+                    throw new ArgumentException("Invalid cell address.");
+                }
+            }
+
+            rowIndex--;
+            colIndex--;
+
+            return GetCellValue(rowIndex, colIndex);
+        }
+
+        public List<Cell> Rows(int rowIndex)
+        {
+            List<Cell> rowCells = new List<Cell>();
+
+            if (rowIndex >= 0 && rowIndex < DataTable.Rows.Count)
+            {
+                for (int colIndex = 0; colIndex < DataTable.Columns.Count; colIndex++)
+                {
+                    rowCells.Add(GetCell(rowIndex, colIndex));
+                }
+            }
+
+            return rowCells;
+        }
+
+        public List<Cell> Columns(string colLetter)
+        {
+            int colIndex = ConvertColLetterToIndex(colLetter);
+
+            return Columns(colIndex + 1);
+        }
+
+        public List<Cell> Columns(int colNumber)
+        {
+            List<Cell> columnCells = new List<Cell>();
+
+            int colIndex = colNumber - 1;
+
+            for (int i = 0; i < DataTable.Rows.Count; i++)
+            {
+                columnCells.Add(GetCell(i, colIndex));
+            }
+
+            return columnCells;
         }
 
         private (int row, int col) ConvertFromA1Style(string a1Reference)
@@ -92,44 +186,16 @@ namespace Exceleration
             return index;
         }
 
-        public object GetCellValue(int rowIndex, int colIndex)
-        {
-            if (rowIndex < 0 || rowIndex >= DataTable.Rows.Count ||
-                colIndex < 0 || colIndex >= DataTable.Columns.Count)
-            {
-                throw new ArgumentOutOfRangeException("Invalid row or column index.");
-            }
-
-            return DataTable.Rows[rowIndex][colIndex];
-        }
-
-        public object GetCellValue(string cellAddress)
+        private int ConvertColLetterToIndex(string colLetter)
         {
             int colIndex = 0;
-            int rowIndex = 0;
-            int multiplier = 1;
-            for (int i = cellAddress.Length - 1; i >= 0; i--)
+            for (int i = 0; i < colLetter.Length; i++)
             {
-                char ch = cellAddress[i];
-                if (Char.IsLetter(ch))
-                {
-                    colIndex += (ch - 'A' + 1) * multiplier;
-                    multiplier *= 26;
-                }
-                else if (Char.IsDigit(ch))
-                {
-                    rowIndex = rowIndex * 10 + (ch - '0');
-                }
-                else
-                {
-                    throw new ArgumentException("Invalid cell address.");
-                }
+                colIndex = colIndex * 26 + (colLetter[i] - 'A' + 1);
             }
-
-            rowIndex--;
             colIndex--;
 
-            return GetCellValue(rowIndex, colIndex);
+            return colIndex;
         }
     }
 }
