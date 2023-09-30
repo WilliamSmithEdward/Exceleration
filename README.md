@@ -24,4 +24,4 @@ Console.WriteLine(cell.Address + ": " + cell.Value);
 ```
 
 ## Attributions
-NuGet icon "AndromedaTM1Sharp.png" designed by Stockes Design on Freepik.com
+NuGet icon "SQLServerInteraction.png" designed by Stockes Design on Freepik.com
