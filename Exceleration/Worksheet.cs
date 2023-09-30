@@ -103,8 +103,10 @@ namespace Exceleration
             return GetCellValue(rowIndex, colIndex);
         }
 
-        public List<Cell> Rows(int rowIndex)
+        public List<Cell> Rows(int rowNumber)
         {
+            int rowIndex = rowNumber--;
+
             List<Cell> rowCells = new List<Cell>();
 
             if (rowIndex >= 0 && rowIndex < DataTable.Rows.Count)

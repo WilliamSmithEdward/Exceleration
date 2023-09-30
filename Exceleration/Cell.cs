@@ -3,7 +3,6 @@
     public class Cell
     {
         private object _value;
-
         public object Value
         {
             get { return _value; }
