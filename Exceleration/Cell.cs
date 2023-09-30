@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Exceleration
+﻿namespace Exceleration
 {
     public class Cell
     {
@@ -28,6 +22,13 @@ namespace Exceleration
         public int ColIndex { get; private set; }
         public Worksheet Parent { get; private set; }
         public Type DataType { get; private set; }
+        public string ColLetter
+        {
+            get
+            {
+                return ConvertIndexToColLetter(ColIndex);
+            }
+        }
 
         public Cell(object value, string address, int rowIndex, int colIndex, Worksheet parentWorksheet, Type dataType)
         {
@@ -45,6 +46,21 @@ namespace Exceleration
             int newCol = ColIndex + colOffset;
 
             return Parent.GetCell(newRow, newCol);
+        }
+
+        private static string ConvertIndexToColLetter(int colIndex)
+        {
+            int dividend = colIndex + 1;
+            string colLetter = String.Empty;
+
+            while (dividend > 0)
+            {
+                int modulo = (dividend - 1) % 26;
+                colLetter = Convert.ToChar(65 + modulo).ToString() + colLetter;
+                dividend = (int)((dividend - modulo) / 26);
+            }
+
+            return colLetter;
         }
     }
 }
