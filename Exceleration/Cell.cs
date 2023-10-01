@@ -2,61 +2,63 @@
 {
     public class Cell
     {
-        private object _value;
-        public object Value
-        {
-            get { return _value; }
-            set
-            {
-                // Update the value in the underlying DataTable as well, if needed
-                Parent.DataTable.Rows[RowIndex][ColIndex] = value;
+        private int _rowIndex;
+        private int _colIndex;
 
-                // Update the value in the Cell object
-                _value = value;
-            }
-        }
-
+        public object Value { get; private set; }
         public string Address { get; private set; }
-        public int RowIndex { get; private set; }
-        public int ColIndex { get; private set; }
         public Worksheet Parent { get; private set; }
         public Type DataType { get; private set; }
-        public string ColLetter
+        public int Row
         {
             get
             {
-                return ConvertIndexToColLetter(ColIndex);
+                return _rowIndex + 1;
+            }
+        }
+        public int Column
+        {
+            get
+            {
+                return _colIndex + 1;
+            }
+        }
+        public string ColumnLetter
+        {
+            get
+            {
+                return ConvertNumberToColLetter(_colIndex + 1);
             }
         }
 
         public Cell(object value, string address, int rowIndex, int colIndex, Worksheet parentWorksheet, Type dataType)
-        {
-            _value = value;
+        {            
+            _rowIndex = rowIndex;
+            _colIndex = colIndex;
+            Value = value;
             Address = address;
-            RowIndex = rowIndex;
-            ColIndex = colIndex;
             Parent = parentWorksheet;
             DataType = dataType;
         }
 
         public Cell Offset(int rowOffset, int colOffset)
         {
-            int newRow = RowIndex + rowOffset;
-            int newCol = ColIndex + colOffset;
+            int newRow = _rowIndex + rowOffset;
+            int newCol = _colIndex + colOffset;
 
             return Parent.GetCell(newRow, newCol);
         }
 
-        private static string ConvertIndexToColLetter(int colIndex)
+        private static string ConvertNumberToColLetter(int colNumber)
         {
-            int dividend = colIndex + 1;
-            string colLetter = String.Empty;
+            int dividend = colNumber;
+            string colLetter = string.Empty;
 
             while (dividend > 0)
             {
                 int modulo = (dividend - 1) % 26;
                 colLetter = Convert.ToChar(65 + modulo).ToString() + colLetter;
-                dividend = (int)((dividend - modulo) / 26);
+                dividend = ((dividend - modulo) / 26);
             }
 
             return colLetter;
