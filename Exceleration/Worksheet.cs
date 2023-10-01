@@ -42,8 +42,11 @@ namespace Exceleration
             }
         }
 
-        public Cell GetCell(int rowIndex, int colIndex)
+        public Cell GetCell(int rowNumber, int colNumber)
         {
+            int rowIndex = rowNumber - 1;
+            int colIndex = colNumber - 1;
+
             if (rowIndex < 0 || rowIndex >= DataTable.Rows.Count ||
                 colIndex < 0 || colIndex >= DataTable.Columns.Count)
             {
@@ -63,8 +66,11 @@ namespace Exceleration
             return GetCell(row, col);
         }
 
-        public object GetCellValue(int rowIndex, int colIndex)
+        public object GetCellValue(int rowNumber, int colNumber)
         {
+            int rowIndex = rowNumber - 1;
+            int colIndex = colNumber - 1;
+
             if (rowIndex < 0 || rowIndex >= DataTable.Rows.Count ||
                 colIndex < 0 || colIndex >= DataTable.Columns.Count)
             {
@@ -76,20 +82,21 @@ namespace Exceleration
 
         public object GetCellValue(string cellAddress)
         {
-            int colIndex = 0;
-            int rowIndex = 0;
+            int colNumber = 0;
+            int rowNumber = 0;
             int multiplier = 1;
+
             for (int i = cellAddress.Length - 1; i >= 0; i--)
             {
                 char ch = cellAddress[i];
                 if (Char.IsLetter(ch))
                 {
-                    colIndex += (ch - 'A' + 1) * multiplier;
+                    colNumber += (ch - 'A' + 1) * multiplier;
                     multiplier *= 26;
                 }
                 else if (Char.IsDigit(ch))
                 {
-                    rowIndex = rowIndex * 10 + (ch - '0');
+                    rowNumber = rowNumber * 10 + (ch - '0');
                 }
                 else
                 {
@@ -97,24 +104,16 @@ namespace Exceleration
                 }
             }
 
-            rowIndex--;
-            colIndex--;
-
-            return GetCellValue(rowIndex, colIndex);
+            return GetCellValue(rowNumber, colNumber);
         }
 
         public List<Cell> Rows(int rowNumber)
         {
-            int rowIndex = rowNumber--;
-
             List<Cell> rowCells = new List<Cell>();
 
-            if (rowIndex >= 0 && rowIndex < DataTable.Rows.Count)
+            for (int colIndex = 0; colIndex < DataTable.Columns.Count; colIndex++)
             {
-                for (int colIndex = 0; colIndex < DataTable.Columns.Count; colIndex++)
-                {
-                    rowCells.Add(GetCell(rowIndex, colIndex));
-                }
+                rowCells.Add(GetCell(rowNumber, colIndex + 1));
             }
 
             return rowCells;
@@ -122,20 +121,18 @@ namespace Exceleration
 
         public List<Cell> Columns(string colLetter)
         {
-            int colIndex = ConvertColLetterToIndex(colLetter);
+            int colIndex = ConvertColLetterToColNumber(colLetter);
 
-            return Columns(colIndex + 1);
+            return Columns(colIndex);
         }
 
         public List<Cell> Columns(int colNumber)
         {
             List<Cell> columnCells = new List<Cell>();
 
-            int colIndex = colNumber - 1;
-
-            for (int i = 0; i < DataTable.Rows.Count; i++)
+            for (int i = 1; i <= DataTable.Rows.Count; i++)
             {
-                columnCells.Add(GetCell(i, colIndex));
+                columnCells.Add(GetCell(i, colNumber));
             }
 
             return columnCells;
@@ -152,8 +149,8 @@ namespace Exceleration
             string columnPart = match.Groups[1].Value;
             string rowPart = match.Groups[2].Value;
 
-            int row = int.Parse(rowPart) - 1;
-            int col = ColumnToIndex(columnPart) - 1;
+            int row = int.Parse(rowPart);
+            int col = ColumnToIndex(columnPart);
 
             return (row, col);
         }
@@ -188,16 +185,15 @@ namespace Exceleration
             return index;
         }
 
-        private int ConvertColLetterToIndex(string colLetter)
+        private int ConvertColLetterToColNumber(string colLetter)
         {
-            int colIndex = 0;
+            int colNumber = 0;
             for (int i = 0; i < colLetter.Length; i++)
             {
-                colIndex = colIndex * 26 + (colLetter[i] - 'A' + 1);
+                colNumber = colNumber * 26 + (colLetter[i] - 'A' + 1);
             }
-            colIndex--;
 
-            return colIndex;
+            return colNumber;
         }
     }
 }
