@@ -32,6 +32,46 @@ namespace Exceleration
             }
         }
 
+        public List<List<Cell>> Rows
+        {
+            get
+            {
+                List<List<Cell>> rows = new List<List<Cell>>();
+
+                for (int rowIndex = 0; rowIndex < DataTable.Rows.Count; rowIndex++)
+                {
+                    List<Cell> rowCells = new List<Cell>();
+                    for (int colIndex = 0; colIndex < DataTable.Columns.Count; colIndex++)
+                    {
+                        rowCells.Add(GetCell(rowIndex + 1, colIndex + 1));
+                    }
+                    rows.Add(rowCells);
+                }
+
+                return rows;
+            }
+        }
+
+        public List<List<Cell>> Columns
+        {
+            get
+            {
+                List<List<Cell>> columns = new List<List<Cell>>();
+
+                for (int colIndex = 0; colIndex < DataTable.Columns.Count; colIndex++)
+                {
+                    List<Cell> colCells = new List<Cell>();
+                    for (int rowIndex = 0; rowIndex < DataTable.Rows.Count; rowIndex++)
+                    {
+                        colCells.Add(GetCell(rowIndex + 1, colIndex + 1));
+                    }
+                    columns.Add(colCells);
+                }
+
+                return columns;
+            }
+        }
+
         public Cell this[string cellAddress]
         {
             get
@@ -107,7 +147,7 @@ namespace Exceleration
             return GetCellValue(rowNumber, colNumber);
         }
 
-        public List<Cell> Rows(int rowNumber)
+        public List<Cell> GetRow(int rowNumber)
         {
             List<Cell> rowCells = new List<Cell>();
 
@@ -119,14 +159,14 @@ namespace Exceleration
             return rowCells;
         }
 
-        public List<Cell> Columns(string colLetter)
+        public List<Cell> GetColumn(string colLetter)
         {
             int colIndex = ConvertColLetterToColNumber(colLetter);
 
-            return Columns(colIndex);
+            return GetColumn(colIndex);
         }
 
-        public List<Cell> Columns(int colNumber)
+        public List<Cell> GetColumn(int colNumber)
         {
             List<Cell> columnCells = new List<Cell>();
 
