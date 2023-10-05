@@ -69,7 +69,7 @@
 
         public T? ToNullable<T>(bool returnNullOnConversionError = true) where T : struct
         {
-            if (string.IsNullOrEmpty(Value.ToString()))
+            if (string.IsNullOrEmpty(Value?.ToString()?.Trim()))
             {
                 if (returnNullOnConversionError) return null;
                 else return default;
