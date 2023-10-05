@@ -69,6 +69,12 @@
 
         public T? ToNullable<T>(bool returnNullOnConversionError = true) where T : struct
         {
+            if (string.IsNullOrEmpty(Value.ToString()))
+            {
+                if (returnNullOnConversionError) return null;
+                else return default;
+            }
+
             try
             {
                 return (T)Convert.ChangeType(Value, typeof(T));
