@@ -54,7 +54,7 @@
             return Value.ToString();
         }
 
-        public T To<T>(bool returnDefault = true) where T : struct
+        public T ToValueType<T>(bool returnDefaultOnConversionError = true) where T : struct
         {
             try
             {
@@ -62,12 +62,12 @@
             }
             catch (InvalidCastException)
             {
-                if (returnDefault) return default;
+                if (returnDefaultOnConversionError) return default;
                 else throw new InvalidCastException($"Cannot convert cell value to type {typeof(T)}.");
             }
         }
 
-        public T? ToNullable<T>(bool returnDefault = true) where T : struct
+        public T? ToNullableValueType<T>(bool returnNullOnConversionError = true) where T : struct
         {
             try
             {
@@ -75,7 +75,20 @@
             }
             catch (InvalidCastException)
             {
-                if (returnDefault) return null;
+                if (returnNullOnConversionError) return null;
+                else throw new InvalidCastException($"Cannot convert cell value to type {typeof(T)}.");
+            }
+        }
+
+        public T? ToReferenceType<T>(bool returnNullOnConversionError = true) where T : class
+        {
+            try
+            {
+                return (T)Convert.ChangeType(Value, typeof(T));
+            }
+            catch (InvalidCastException)
+            {
+                if (returnNullOnConversionError) return default;
                 else throw new InvalidCastException($"Cannot convert cell value to type {typeof(T)}.");
             }
         }
