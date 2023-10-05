@@ -49,6 +49,23 @@
             return Parent.GetCell(newRow, newCol);
         }
 
+        public override string? ToString()
+        {
+            return Value.ToString();
+        }
+
+        public T To<T>()
+        {
+            try
+            {
+                return (T)Convert.ChangeType(Value, typeof(T));
+            }
+            catch (InvalidCastException)
+            {
+                throw new InvalidCastException($"Cannot convert cell value to type {typeof(T)}.");
+            }
+        }
+
         private static string ConvertNumberToColLetter(int colNumber)
         {
             int dividend = colNumber;
