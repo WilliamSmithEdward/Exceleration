@@ -54,7 +54,7 @@
             return Value.ToString();
         }
 
-        public T To<T>()
+        public T To<T>(bool returnDefault = true) where T : struct
         {
             try
             {
@@ -62,7 +62,21 @@
             }
             catch (InvalidCastException)
             {
-                throw new InvalidCastException($"Cannot convert cell value to type {typeof(T)}.");
+                if (returnDefault) return default;
+                else throw new InvalidCastException($"Cannot convert cell value to type {typeof(T)}.");
+            }
+        }
+
+        public T? ToNullable<T>(bool returnDefault = true) where T : struct
+        {
+            try
+            {
+                return (T)Convert.ChangeType(Value, typeof(T));
+            }
+            catch (InvalidCastException)
+            {
+                if (returnDefault) return null;
+                else throw new InvalidCastException($"Cannot convert cell value to type {typeof(T)}.");
             }
         }
 
