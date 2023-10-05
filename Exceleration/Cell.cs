@@ -80,19 +80,6 @@
             }
         }
 
-        public T? ToReferenceType<T>(bool returnNullOnConversionError = true) where T : class
-        {
-            try
-            {
-                return (T)Convert.ChangeType(Value, typeof(T));
-            }
-            catch (InvalidCastException)
-            {
-                if (returnNullOnConversionError) return default;
-                else throw new InvalidCastException($"Cannot convert cell value to type {typeof(T)}.");
-            }
-        }
-
         private static string ConvertNumberToColLetter(int colNumber)
         {
             int dividend = colNumber;
