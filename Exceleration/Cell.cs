@@ -60,7 +60,7 @@
             {
                 return (T)Convert.ChangeType(Value, typeof(T));
             }
-            catch (InvalidCastException)
+            catch
             {
                 if (returnDefaultOnConversionError) return default;
                 else throw new InvalidCastException($"Cannot convert cell value to type {typeof(T)}.");
@@ -79,7 +79,8 @@
             {
                 return (T)Convert.ChangeType(Value, typeof(T));
             }
-            catch (InvalidCastException)
+
+            catch
             {
                 if (returnNullOnConversionError) return null;
                 else return default;
@@ -95,7 +96,8 @@
                 Convert.ChangeType(Value, typeof(T));
                 return true;
             }
-            catch (InvalidCastException)
+
+            catch
             {
                 return false;
             }
