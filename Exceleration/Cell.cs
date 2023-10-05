@@ -86,6 +86,21 @@
             }
         }
 
+        public bool IsParseable<T>() where T : struct
+        {
+            if (string.IsNullOrEmpty(Value?.ToString()?.Trim())) return false;
+
+            try
+            {
+                Convert.ChangeType(Value, typeof(T));
+                return true;
+            }
+            catch (InvalidCastException)
+            {
+                return false;
+            }
+        }
+
         private static string ConvertNumberToColLetter(int colNumber)
         {
             int dividend = colNumber;
