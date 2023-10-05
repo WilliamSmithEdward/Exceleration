@@ -161,9 +161,9 @@ namespace Exceleration
 
         public List<Cell> GetColumn(string colLetter)
         {
-            int colIndex = ConvertColLetterToColNumber(colLetter);
+            int colNumber = ConvertColLetterToColNumber(colLetter);
 
-            return GetColumn(colIndex);
+            return GetColumn(colNumber);
         }
 
         public List<Cell> GetColumn(int colNumber)
