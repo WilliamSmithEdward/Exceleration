@@ -12,8 +12,8 @@
 		<PackageProjectUrl>https://github.com/WilliamSmithEdward/Exceleration</PackageProjectUrl>
 		<PackageTags>excel;exceldatareader;workbook;worksheet;spreadsheet;automation;async</PackageTags>
 		<Deterministic>false</Deterministic>
-		<AssemblyVersion>1.0.5.9</AssemblyVersion>
-		<PackageVersion>1.0.5.9</PackageVersion>
+		<AssemblyVersion>1.1.0</AssemblyVersion>
+		<PackageVersion>1.1.0</PackageVersion>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIcon>Exceleration.png</PackageIcon>
 		<Copyright>William Edward Smith, 2023</Copyright>
