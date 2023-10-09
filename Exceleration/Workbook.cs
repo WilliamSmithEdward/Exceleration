@@ -1,5 +1,6 @@
 ﻿using ExcelDataReader;
 using System.Data;
+using System.Reflection;
 using System.Text;
 
 namespace Exceleration
@@ -28,16 +29,25 @@ namespace Exceleration
         /// Initializes a new instance of the <see cref="Workbook"/> class.
         /// </summary>
         /// <param name="filePath">The file path of the workbook.</param>
-        public Workbook(string filePath)
+        /// /// <param name="copyFileToExeDirectoryBeforeRead">Should the file be copied to the exe directory prior to reading? (Optional)</param>
+        public Workbook(string filePath, bool copyFileToExeDirectoryBeforeRead = false)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
             FilePath = filePath;
             Name = Path.GetFileName(filePath);
 
+            if (copyFileToExeDirectoryBeforeRead)
+            {
+                string exeDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
+                string destinationPath = Path.Combine(exeDirectory, Name);
+                File.Copy(filePath, destinationPath, true);
+                FilePath = destinationPath;
+            }
+
             Sheets = new List<Worksheet>();
 
-            using var stream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            using var stream = File.Open(filePath, FileMode.Open, FileAccess.Read);
             using var reader = ExcelReaderFactory.CreateReader(stream);
 
             var result = reader.AsDataSet(new ExcelDataSetConfiguration());
