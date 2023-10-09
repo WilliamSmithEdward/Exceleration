@@ -37,7 +37,7 @@ namespace Exceleration
 
             Sheets = new List<Worksheet>();
 
-            using var stream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            using var stream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             using var reader = ExcelReaderFactory.CreateReader(stream);
 
             var result = reader.AsDataSet(new ExcelDataSetConfiguration());
