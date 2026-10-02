@@ -67,5 +67,13 @@ must not break:
   net10.0, and CI checks the package holds each one's dll and XML docs.
   Change the list only on the owner's decision, and update `ci.yml`,
   `publish.yml` and the READMEs with it.
+- **Tests.** `Exceleration.Tests` is an xUnit v3 project run by
+  Microsoft.Testing.Platform (`global.json` opts `dotnet test` in), on
+  net8.0, net9.0 and net10.0:
+  `dotnet test --solution Exceleration.sln -c Release --fail-skips on`.
+  No workbook is committed: `Xlsx` in `TestSupport.cs` writes each .xlsx a
+  test reads, malformed ones included, into a `TempFolder` under the system
+  temp folder, and nothing touches the network. CI runs them with
+  `--fail-skips on`. A fix comes with a test that fails without it.
 - **XML docs.** CI builds with warnings as errors, so every public member
   needs an XML doc comment.
