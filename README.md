@@ -6,7 +6,7 @@ Exceleration reads Excel workbooks into memory through [ExcelDataReader](https:/
 dotnet add package Exceleration
 ```
 
-Everything is in the `Exceleration` namespace. The package targets net8.0, net9.0 and net10.0 and depends on ExcelDataReader and ExcelDataReader.DataSet 3.7.0.
+Everything is in the `Exceleration` namespace. The package targets net8.0, net9.0 and net10.0 and depends on ExcelDataReader and ExcelDataReader.DataSet 3.9.0.
 
 ---
 
