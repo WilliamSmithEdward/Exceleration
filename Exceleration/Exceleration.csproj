@@ -14,8 +14,8 @@
 		<RepositoryType>git</RepositoryType>
 		<PackageProjectUrl>https://github.com/WilliamSmithEdward/Exceleration</PackageProjectUrl>
 		<PackageTags>excel;exceldatareader;xlsx;xls;xlsb;workbook;worksheet;spreadsheet;cell;reader</PackageTags>
-		<AssemblyVersion>1.1.1.4</AssemblyVersion>
-		<PackageVersion>1.1.1.4</PackageVersion>
+		<AssemblyVersion>2.0.0</AssemblyVersion>
+		<PackageVersion>2.0.0</PackageVersion>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIcon>Exceleration.png</PackageIcon>
 		<Copyright>William Edward Smith, 2023</Copyright>
