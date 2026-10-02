@@ -126,7 +126,7 @@ Console.WriteLine(wb["Copy"]["A3"].Value);       // Pear
 - `Offset(rows, columns)` returns the cell that many rows down and columns to the right; negative numbers go up and left. `Cells` lists every cell of the used range, row by row.
 - `Value` is what ExcelDataReader read: a `string`, a `double` for every number, a `bool`, a `DateTime` for a cell with a date format, or `DBNull.Value` for an empty cell. A formula cell holds the value Excel last calculated and saved. `DataType` is the type of `Value`, `typeof(DBNull)` for an empty cell.
 - `To<T>()` converts with `Convert.ChangeType`, which uses the current culture and rounds a fractional number to the nearest even integer (1.5 and 2.5 both give 2). It returns `default(T)` when the conversion fails, or throws `InvalidCastException` with `To<T>(false)`.
-- `ToNullable<T>()` returns `null` for an empty cell, a cell that holds only spaces, or a value that does not convert. `IsParseable<T>()` returns `false` in the same cases.
+- `ToNullable<T>()` returns `null` for an empty cell, a cell that holds only spaces, or a value that does not convert. `ToNullable<T>(false)` returns `default(T)`, such as 0, for a value that does not convert, and still `null` for an empty or blank cell. `IsParseable<T>()` returns `false` for an empty or blank cell and for a value that does not convert.
 - `ToString()` returns `Value.ToString()`, an empty string for an empty cell.
 - `wb.AddSheet(table, name)` adds a sheet made from a `DataTable`, and `wb.AddSheet(sheet)` adds an existing `Worksheet`. Both throw `ArgumentException` when a sheet with the same name, compared with case, is already there. Nothing is written back to the file.
 
@@ -138,7 +138,6 @@ Console.WriteLine(wb["Copy"]["A3"].Value);       // Pear
 
 ## Known problems in 1.1.1.4
 
-- `ToNullable<T>(false)` returns `null` on a failed conversion, exactly like `ToNullable<T>()`.
 - `AddSheet` compares names with case while `wb[name]` ignores it, so a sheet named "sheet1" can be added next to "Sheet1" and cannot be found by name.
 - `AddSheet(table, name)` renames the caller's `DataTable` and keeps it, so later changes to the table change the sheet. `AddSheet(sheet)` with a sheet from another workbook leaves its `Parent` pointing at that workbook.
 

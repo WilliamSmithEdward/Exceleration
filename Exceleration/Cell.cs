@@ -127,14 +127,15 @@
         /// Converts the cell's value to a nullable value of the specified type and returns the result. Constrained to type struct.
         /// </summary>
         /// <typeparam name="T">The target nullable value type to which the value should be converted.</typeparam>
-        /// <param name="returnNullOnConversionError">If true, returns null on conversion error. If false, returns the default nullable value of the target type on error.</param>
-        /// <returns>The converted nullable value of the cell, or null on conversion error (if returnNullOnConversionError is true).</returns>
+        /// <param name="returnNullOnConversionError">If true, returns null when the value does not convert. If false, returns
+        /// <c>default(T)</c>, such as 0, as a value.</param>
+        /// <returns>The converted value; null for an empty cell or a cell that holds only spaces, whatever the flag; and null or
+        /// <c>default(T)</c>, as the flag says, for a value that does not convert.</returns>
         public T? ToNullable<T>(bool returnNullOnConversionError = true) where T : struct
         {
             if (string.IsNullOrEmpty(Value?.ToString()?.Trim()))
             {
-                if (returnNullOnConversionError) return null;
-                else return default;
+                return null;
             }
 
             try
@@ -145,7 +146,7 @@
             catch
             {
                 if (returnNullOnConversionError) return null;
-                else return default;
+                else return default(T);
             }
         }
 
