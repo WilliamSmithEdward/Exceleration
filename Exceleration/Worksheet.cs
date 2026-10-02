@@ -1,12 +1,11 @@
 ﻿using System.Data;
-using System.Text.RegularExpressions;
 
 namespace Exceleration
 {
     /// <summary>
     /// Represents a worksheet within a workbook.
     /// </summary>
-    public partial class Worksheet
+    public class Worksheet
     {
         /// <summary>
         /// Gets the internal DataTable associated with the worksheet.
@@ -48,7 +47,7 @@ namespace Exceleration
                 {
                     for (int colIndex = 0; colIndex < DataTable.Columns.Count; colIndex++)
                     {
-                        allCells.Add(GetCell(rowIndex, colIndex));
+                        allCells.Add(GetCell(rowIndex + 1, colIndex + 1));
                     }
                 }
 
@@ -105,17 +104,18 @@ namespace Exceleration
         /// <summary>
         /// Gets the cell at the specified address in A1-style notation.
         /// </summary>
-        /// <param name="cellAddress">The address of the cell in A1-style notation.</param>
+        /// <param name="cellAddress">The address of the cell in A1-style notation: column letters, in either case, then the row number, such as "B12".</param>
         /// <returns>The cell at the specified address.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if the address is null.</exception>
         /// <exception cref="ArgumentException">Thrown if the address is not an A1-style reference.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if the cell is outside the sheet's used range.</exception>
         public Cell this[string cellAddress]
         {
             get
             {
-                (int rowIndex, int colIndex) = ConvertFromA1Style(cellAddress);
+                (int rowNumber, int colNumber) = ParseA1Reference(cellAddress, nameof(cellAddress));
 
-                return GetCell(rowIndex, colIndex);
+                return GetCell(rowNumber, colNumber);
             }
         }
 
@@ -128,15 +128,11 @@ namespace Exceleration
         /// <exception cref="ArgumentOutOfRangeException">Thrown if the row or column index is out of range.</exception>
         public Cell GetCell(int rowNumber, int colNumber)
         {
+            CheckRow(rowNumber);
+            CheckColumn(colNumber);
+
             int rowIndex = rowNumber - 1;
             int colIndex = colNumber - 1;
-
-            if (rowIndex < 0 || rowIndex >= DataTable.Rows.Count ||
-                colIndex < 0 || colIndex >= DataTable.Columns.Count)
-            {
-                throw new ArgumentOutOfRangeException($"Invalid row { rowNumber } or column { colNumber } index.");
-            }
-
             object value = DataTable.Rows[rowIndex][colIndex];
             string address = ConvertToA1Style(rowIndex, colIndex);
             Type dataType = value.GetType();
@@ -147,13 +143,14 @@ namespace Exceleration
         /// <summary>
         /// Gets the cell at the specified A1-style reference.
         /// </summary>
-        /// <param name="a1Reference">The A1-style reference of the cell.</param>
+        /// <param name="a1Reference">The A1-style reference of the cell: column letters, in either case, then the row number, such as "B12".</param>
         /// <returns>The cell at the specified A1-style reference.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if the reference is null.</exception>
         /// <exception cref="ArgumentException">Thrown if the reference is not an A1-style reference.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if the cell is outside the sheet's used range.</exception>
         public Cell GetCell(string a1Reference)
         {
-            var (row, col) = ConvertFromA1Style(a1Reference);
+            var (row, col) = ParseA1Reference(a1Reference, nameof(a1Reference));
             return GetCell(row, col);
         }
 
@@ -166,47 +163,23 @@ namespace Exceleration
         /// <exception cref="ArgumentOutOfRangeException">Thrown if the row or column index is out of range.</exception>
         public object GetCellValue(int rowNumber, int colNumber)
         {
-            int rowIndex = rowNumber - 1;
-            int colIndex = colNumber - 1;
+            CheckRow(rowNumber);
+            CheckColumn(colNumber);
 
-            if (rowIndex < 0 || rowIndex >= DataTable.Rows.Count ||
-                colIndex < 0 || colIndex >= DataTable.Columns.Count)
-            {
-                throw new ArgumentOutOfRangeException($"Invalid row { rowNumber } or column { colNumber } index.");
-            }
-
-            return DataTable.Rows[rowIndex][colIndex];
+            return DataTable.Rows[rowNumber - 1][colNumber - 1];
         }
 
         /// <summary>
         /// Gets the value of the cell at the specified A1-style cell address.
         /// </summary>
-        /// <param name="cellAddress">The A1-style cell address (e.g., "A1").</param>
+        /// <param name="cellAddress">The A1-style cell address: column letters, in either case, then the row number, such as "B12".</param>
         /// <returns>The value of the cell at the specified cell address.</returns>
-        /// <exception cref="ArgumentException">Thrown if the cell address is invalid.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if the cell address is null.</exception>
+        /// <exception cref="ArgumentException">Thrown if the cell address is not an A1-style reference.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if the cell is outside the sheet's used range.</exception>
         public object GetCellValue(string cellAddress)
         {
-            int colNumber = 0;
-            int rowNumber = 0;
-            int multiplier = 1;
-
-            for (int i = cellAddress.Length - 1; i >= 0; i--)
-            {
-                char ch = cellAddress[i];
-                if (char.IsLetter(ch))
-                {
-                    colNumber += (ch - 'A' + 1) * multiplier;
-                    multiplier *= 26;
-                }
-                else if (char.IsDigit(ch))
-                {
-                    rowNumber = rowNumber * 10 + (ch - '0');
-                }
-                else
-                {
-                    throw new ArgumentException("Invalid cell address.");
-                }
-            }
+            var (rowNumber, colNumber) = ParseA1Reference(cellAddress, nameof(cellAddress));
 
             return GetCellValue(rowNumber, colNumber);
         }
@@ -219,6 +192,8 @@ namespace Exceleration
         /// <exception cref="ArgumentOutOfRangeException">Thrown if the row index is out of range.</exception>
         public List<Cell> GetRow(int rowNumber)
         {
+            CheckRow(rowNumber);
+
             var rowCells = new List<Cell>();
 
             for (int colIndex = 0; colIndex < DataTable.Columns.Count; colIndex++)
@@ -232,14 +207,20 @@ namespace Exceleration
         /// <summary>
         /// Gets a list of cells in the specified column by its column letter (e.g., "A").
         /// </summary>
-        /// <param name="colLetter">The column letter (e.g., "A").</param>
+        /// <param name="colLetter">The column letters, in either case (e.g., "A" or "ab").</param>
         /// <returns>A list of cells in the specified column.</returns>
-        /// <exception cref="ArgumentException">Thrown if the column letter is invalid.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if the column letters are null.</exception>
+        /// <exception cref="ArgumentException">Thrown if the column letters are empty or hold anything but the letters A to Z.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if the column is outside the sheet's used range.</exception>
         public List<Cell> GetColumn(string colLetter)
         {
-            int colNumber = ConvertColLetterToColNumber(colLetter);
+            ArgumentNullException.ThrowIfNull(colLetter);
+            if (colLetter.Length == 0 || !colLetter.All(char.IsAsciiLetter))
+            {
+                throw new ArgumentException($"'{colLetter}' is not a column such as \"B\" or \"AB\".", nameof(colLetter));
+            }
 
-            return GetColumn(colNumber);
+            return GetColumn(ColumnLettersToNumber(colLetter));
         }
 
         /// <summary>
@@ -250,6 +231,8 @@ namespace Exceleration
         /// <exception cref="ArgumentOutOfRangeException">Thrown if the column index is out of range.</exception>
         public List<Cell> GetColumn(int colNumber)
         {
+            CheckColumn(colNumber);
+
             var columnCells = new List<Cell>();
 
             for (int i = 1; i <= DataTable.Rows.Count; i++)
@@ -270,21 +253,65 @@ namespace Exceleration
             return DataTable.Copy();
         }
 
-        private (int row, int col) ConvertFromA1Style(string a1Reference)
+        private void CheckRow(int rowNumber)
         {
-            var match = MyRegex().Match(a1Reference);
-            if (!match.Success)
+            if (rowNumber < 1 || rowNumber > DataTable.Rows.Count)
             {
-                throw new ArgumentException("Invalid A1 style reference.");
+                throw new ArgumentOutOfRangeException(nameof(rowNumber), rowNumber,
+                    $"Row {rowNumber} is outside the sheet '{Name}', which has {DataTable.Rows.Count} rows.");
+            }
+        }
+
+        private void CheckColumn(int colNumber)
+        {
+            if (colNumber < 1 || colNumber > DataTable.Columns.Count)
+            {
+                throw new ArgumentOutOfRangeException(nameof(colNumber), colNumber,
+                    $"Column {colNumber} is outside the sheet '{Name}', which has {DataTable.Columns.Count} columns.");
+            }
+        }
+
+        // Column letters then row digits, nothing else: "B12" or "b12". A row or column too large
+        // for an int becomes int.MaxValue, which no sheet has, so the lookup reports it as out of range.
+        private static (int row, int col) ParseA1Reference(string reference, string paramName)
+        {
+            ArgumentNullException.ThrowIfNull(reference, paramName);
+
+            int letters = 0;
+            while (letters < reference.Length && char.IsAsciiLetter(reference[letters]))
+            {
+                letters++;
             }
 
-            string columnPart = match.Groups[1].Value;
-            string rowPart = match.Groups[2].Value;
+            int end = letters;
+            while (end < reference.Length && char.IsAsciiDigit(reference[end]))
+            {
+                end++;
+            }
 
-            int row = int.Parse(rowPart);
-            int col = ColumnToIndex(columnPart);
+            if (letters == 0 || end == letters || end != reference.Length)
+            {
+                throw new ArgumentException($"'{reference}' is not an A1-style reference such as \"B12\".", paramName);
+            }
 
-            return (row, col);
+            long row = 0;
+            foreach (char digit in reference.AsSpan(letters))
+            {
+                row = Math.Min(row * 10 + (digit - '0'), int.MaxValue);
+            }
+
+            return ((int)row, ColumnLettersToNumber(reference.AsSpan(0, letters)));
+        }
+
+        private static int ColumnLettersToNumber(ReadOnlySpan<char> letters)
+        {
+            long number = 0;
+            foreach (char letter in letters)
+            {
+                number = Math.Min(number * 26 + (char.ToUpperInvariant(letter) - 'A' + 1), int.MaxValue);
+            }
+
+            return (int)number;
         }
 
         private static string ConvertToA1Style(int row, int col)
@@ -306,29 +333,5 @@ namespace Exceleration
             return columnName;
         }
 
-        private int ColumnToIndex(string column)
-        {
-            int index = 0;
-            foreach (char ch in column)
-            {
-                index *= 26;
-                index += ch - 'A' + 1;
-            }
-            return index;
-        }
-
-        private int ConvertColLetterToColNumber(string colLetter)
-        {
-            int colNumber = 0;
-            for (int i = 0; i < colLetter.Length; i++)
-            {
-                colNumber = colNumber * 26 + colLetter[i] - 'A' + 1;
-            }
-
-            return colNumber;
-        }
-
-        [GeneratedRegex("([A-Za-z]+)(\\d+)")]
-        private static partial Regex MyRegex();
     }
 }

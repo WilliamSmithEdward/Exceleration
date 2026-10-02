@@ -20,11 +20,12 @@
         /// Gets the first cell in a list of cells with a specific column letter (e.g., "A").
         /// </summary>
         /// <param name="cells">The list of cells to search.</param>
-        /// <param name="columnLetter">The column letter to match.</param>
+        /// <param name="columnLetter">The column letter to match, in either case.</param>
         /// <returns>The first cell with the specified column letter.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if no cell in the list is in that column.</exception>
         public static Cell GetFirstCellByColumnLetter(this List<Cell> cells, string columnLetter)
         {
-            return cells.First(x => x.ColumnLetter.Equals(columnLetter));
+            return cells.First(x => x.ColumnLetter.Equals(columnLetter, StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>
@@ -64,11 +65,11 @@
         /// Gets a list of cells in a specific column by its column letter (e.g., "A") from a list of cells.
         /// </summary>
         /// <param name="cells">The list of cells to search.</param>
-        /// <param name="columnLetter">The column letter to match.</param>
+        /// <param name="columnLetter">The column letter to match, in either case.</param>
         /// <returns>A list of cells in the specified column.</returns>
         public static List<Cell> GetColumn(this List<Cell> cells, string columnLetter)
         {
-            return cells.Where(x => x.ColumnLetter.Equals(columnLetter)).ToList();
+            return cells.Where(x => x.ColumnLetter.Equals(columnLetter, StringComparison.OrdinalIgnoreCase)).ToList();
         }
     }
 }

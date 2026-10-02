@@ -87,12 +87,10 @@
         /// <param name="rowOffset">The number of rows to offset (positive or negative).</param>
         /// <param name="colOffset">The number of columns to offset (positive or negative).</param>
         /// <returns>The cell that is offset from the current cell.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if the offset cell is outside the sheet's used range.</exception>
         public Cell Offset(int rowOffset, int colOffset)
         {
-            int newRow = _rowIndex + rowOffset;
-            int newCol = _colIndex + colOffset;
-
-            return Parent.GetCell(newRow, newCol);
+            return Parent.GetCell(Row + rowOffset, Column + colOffset);
         }
 
         /// <summary>
