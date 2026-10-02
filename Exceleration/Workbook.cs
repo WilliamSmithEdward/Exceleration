@@ -31,13 +31,15 @@ namespace Exceleration
         /// </summary>
         /// <remarks>
         /// The formats are those ExcelDataReader's <c>ExcelReaderFactory.CreateReader</c> detects: .xlsx, .xlsm, .xlsb and .xls, not CSV.
-        /// The file is opened for reading without sharing. The constructor also registers
+        /// The file is opened for reading and shared with other readers and writers, so a workbook Excel or another
+        /// thread has open can be read. The constructor also registers
         /// <see cref="CodePagesEncodingProvider.Instance"/> with <see cref="Encoding.RegisterProvider(EncodingProvider)"/> for the whole process.
         /// </remarks>
         /// <param name="filePath">The path of the workbook file.</param>
         /// <param name="copyFileToExeDirectoryBeforeRead">When true, copies the file into the folder Exceleration.dll was loaded from,
-        /// under the same file name and replacing a file of that name, and reads the copy, which is left there. Optional; false by default.</param>
-        /// <exception cref="IOException">The file cannot be opened, for example because another process has it open.</exception>
+        /// under the same file name and replacing a file of that name, and reads the copy, which is left there. A file already
+        /// in that folder is read where it is. Optional; false by default.</param>
+        /// <exception cref="IOException">The file cannot be opened, for example because another process holds it without sharing.</exception>
         /// <exception cref="FileNotFoundException">There is no file at <paramref name="filePath"/>.</exception>
         /// <exception cref="ExcelDataReader.Exceptions.HeaderException">The file is not in a format ExcelDataReader reads.</exception>
         public Workbook(string filePath, bool copyFileToExeDirectoryBeforeRead = false)
@@ -51,13 +53,16 @@ namespace Exceleration
             {
                 string exeDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
                 string destinationPath = Path.Combine(exeDirectory, Name);
-                File.Copy(filePath, destinationPath, true);
+                if (!IsSameFile(filePath, destinationPath))
+                {
+                    File.Copy(filePath, destinationPath, true);
+                }
                 FilePath = destinationPath;
             }
 
             Sheets = new List<Worksheet>();
 
-            using var stream = File.Open(FilePath, FileMode.Open, FileAccess.Read);
+            using var stream = new FileStream(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             using var reader = ExcelReaderFactory.CreateReader(stream);
 
             var result = reader.AsDataSet(new ExcelDataSetConfiguration());
@@ -108,6 +113,14 @@ namespace Exceleration
             table.TableName = workSheetName;
 
             Sheets.Add(new Worksheet(table, this));
+        }
+
+        // Copying a file onto itself fails, because File.Copy opens the destination for writing while it
+        // reads the source. Windows and macOS file systems ignore case by default; Linux ones do not.
+        private static bool IsSameFile(string first, string second)
+        {
+            var comparison = OperatingSystem.IsLinux() ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+            return string.Equals(Path.GetFullPath(first), Path.GetFullPath(second), comparison);
         }
     }
 }
