@@ -107,6 +107,8 @@ namespace Exceleration
         /// </summary>
         /// <param name="cellAddress">The address of the cell in A1-style notation.</param>
         /// <returns>The cell at the specified address.</returns>
+        /// <exception cref="ArgumentException">Thrown if the address is not an A1-style reference.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if the cell is outside the sheet's used range.</exception>
         public Cell this[string cellAddress]
         {
             get
@@ -147,6 +149,8 @@ namespace Exceleration
         /// </summary>
         /// <param name="a1Reference">The A1-style reference of the cell.</param>
         /// <returns>The cell at the specified A1-style reference.</returns>
+        /// <exception cref="ArgumentException">Thrown if the reference is not an A1-style reference.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if the cell is outside the sheet's used range.</exception>
         public Cell GetCell(string a1Reference)
         {
             var (row, col) = ConvertFromA1Style(a1Reference);
@@ -257,7 +261,8 @@ namespace Exceleration
         }
 
         /// <summary>
-        /// Converts the worksheet data to a DataTable and returns it.
+        /// Returns a copy of the worksheet's data as a DataTable. Its columns are named Column0, Column1 and so on,
+        /// and row 1 of the sheet is the table's first row.
         /// </summary>
         /// <returns>A copy of the DataTable representing the worksheet data.</returns>
         public DataTable ToDataTable()

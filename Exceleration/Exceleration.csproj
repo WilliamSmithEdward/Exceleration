@@ -6,11 +6,13 @@
 		<Nullable>enable</Nullable>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<Description>Exceleration is a C# library that wraps ExcelDataReader. It helps you better interact with Excel files by simplifying the development experience.</Description>
+		<Description>Reads .xlsx, .xlsm, .xlsb and .xls workbooks into memory through ExcelDataReader and addresses their cells by sheet name, A1 reference, or row and column number, with typed conversion of cell values. Reads only; does not write workbooks.</Description>
+		<Authors>WilliamSmithE</Authors>
 		<PackageReadmeFile>nugetREADME.md</PackageReadmeFile>
-		<RepositoryUrl></RepositoryUrl>
+		<RepositoryUrl>https://github.com/WilliamSmithEdward/Exceleration</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
 		<PackageProjectUrl>https://github.com/WilliamSmithEdward/Exceleration</PackageProjectUrl>
-		<PackageTags>excel;exceldatareader;workbook;worksheet;spreadsheet;automation;async</PackageTags>
+		<PackageTags>excel;exceldatareader;xlsx;xls;xlsb;workbook;worksheet;spreadsheet;cell;reader</PackageTags>
 		<Deterministic>false</Deterministic>
 		<AssemblyVersion>1.1.1.4</AssemblyVersion>
 		<PackageVersion>1.1.1.4</PackageVersion>
