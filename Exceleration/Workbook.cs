@@ -41,9 +41,35 @@ namespace Exceleration
         /// in that folder is read where it is. Optional; false by default.</param>
         /// <exception cref="IOException">The file cannot be opened, for example because another process holds it without sharing.</exception>
         /// <exception cref="FileNotFoundException">There is no file at <paramref name="filePath"/>.</exception>
-        /// <exception cref="ExcelDataReader.Exceptions.HeaderException">The file is not in a format ExcelDataReader reads.</exception>
+        /// <exception cref="InvalidDataException">The file is not a workbook ExcelDataReader can read, or is damaged. The exception
+        /// ExcelDataReader or .NET raised is the <see cref="Exception.InnerException"/>.</exception>
         public Workbook(string filePath, bool copyFileToExeDirectoryBeforeRead = false)
+            : this(filePath, copyFileToExeDirectoryBeforeRead, long.MaxValue)
         {
+        }
+
+        /// <summary>
+        /// Reads every sheet of the workbook at <paramref name="filePath"/> into memory and closes the file, refusing a
+        /// workbook with a sheet larger than <paramref name="maxCellsPerSheet"/> before any sheet is read.
+        /// </summary>
+        /// <remarks>
+        /// A sheet holds a cell for every row and column from A1 to its last used cell, empty or not, so a small file can
+        /// need a great deal of memory. Pass a limit when the workbook comes from somewhere you do not control. Otherwise
+        /// this reads as <see cref="Workbook(string, bool)"/> does.
+        /// </remarks>
+        /// <param name="filePath">The path of the workbook file.</param>
+        /// <param name="copyFileToExeDirectoryBeforeRead">As for <see cref="Workbook(string, bool)"/>.</param>
+        /// <param name="maxCellsPerSheet">The most cells, rows times columns of the used range, any one sheet may have.</param>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="maxCellsPerSheet"/> is less than 1.</exception>
+        /// <exception cref="IOException">The file cannot be opened, for example because another process holds it without sharing.</exception>
+        /// <exception cref="FileNotFoundException">There is no file at <paramref name="filePath"/>.</exception>
+        /// <exception cref="InvalidDataException">A sheet has more cells than the limit, or the file is not a workbook ExcelDataReader
+        /// can read, or is damaged. For an unreadable file, the exception ExcelDataReader or .NET raised is the
+        /// <see cref="Exception.InnerException"/>.</exception>
+        public Workbook(string filePath, bool copyFileToExeDirectoryBeforeRead, long maxCellsPerSheet)
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThan(maxCellsPerSheet, 1);
+
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
             FilePath = filePath;
@@ -63,14 +89,57 @@ namespace Exceleration
             Sheets = new List<Worksheet>();
 
             using var stream = new FileStream(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            using var reader = ExcelReaderFactory.CreateReader(stream);
 
-            var result = reader.AsDataSet(new ExcelDataSetConfiguration());
+            DataSet? result = null;
+            string? overLimit;
+            try
+            {
+                using var reader = ExcelReaderFactory.CreateReader(stream);
+                overLimit = FindSheetOverLimit(reader, maxCellsPerSheet);
+                if (overLimit is null)
+                {
+                    result = reader.AsDataSet(new ExcelDataSetConfiguration());
+                }
+            }
+            // Whatever the parse hit, from a wrong signature to broken XML or a damaged zip, comes out as one type the
+            // caller can catch. Running out of memory is not a property of the file, so it passes through.
+            catch (Exception e) when (e is not OutOfMemoryException)
+            {
+                throw new InvalidDataException($"'{Name}' is not a workbook Exceleration can read: {e.Message}", e);
+            }
 
-            foreach (DataTable table in result.Tables)
+            if (overLimit is not null)
+            {
+                throw new InvalidDataException(overLimit);
+            }
+
+            foreach (DataTable table in result!.Tables)
             {
                 Sheets.Add(new Worksheet(table, this));
             }
+        }
+
+        // ExcelDataReader knows each sheet's used range before it reads the cells, and AsDataSet allocates all of it.
+        // Returns why the workbook is refused, or null, with the reader back at its first sheet.
+        private string? FindSheetOverLimit(IExcelDataReader reader, long maxCellsPerSheet)
+        {
+            if (maxCellsPerSheet == long.MaxValue)
+            {
+                return null;
+            }
+
+            do
+            {
+                long cells = (long)reader.RowCount * reader.FieldCount;
+                if (cells > maxCellsPerSheet)
+                {
+                    return $"Sheet '{reader.Name}' of '{Name}' has {reader.RowCount} rows and {reader.FieldCount} columns, "
+                        + $"{cells} cells, more than the limit of {maxCellsPerSheet}.";
+                }
+            } while (reader.NextResult());
+
+            reader.Reset();
+            return null;
         }
 
         /// <summary>

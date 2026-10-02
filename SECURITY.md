@@ -45,9 +45,17 @@ covered below.
 
 The whole workbook is held in memory, and a sheet takes room for every cell
 from A1 to its last used cell, empty or not, so a file of a few kilobytes
-can need gigabytes. Exceleration sets no limit. Check the size and source
-of a workbook before reading it, and read untrusted workbooks in a process
-whose memory you can cap.
+can need gigabytes. `new Workbook(filePath)` sets no limit. Read a workbook
+from somewhere you do not control with
+`new Workbook(filePath, false, maxCellsPerSheet)`, which refuses the whole
+workbook with `InvalidDataException` before any sheet is read when one sheet's
+used range is larger than the limit. A workbook that gets past a limit you
+set and still makes the library hold far more than that counts as a
+vulnerability.
+
+A file that does not parse throws `InvalidDataException` naming the file,
+with the parser's exception inside, so a caller can catch every unreadable
+workbook in one place.
 
 ### The copy option
 
