@@ -112,8 +112,8 @@ Console.WriteLine(wb["Copy"]["A3"].Value);       // Pear
 
 - `new Workbook(filePath)` reads every sheet of the file into memory and closes it before returning. Later changes to the file are not seen; construct a new `Workbook` to read them.
 - It reads the formats ExcelDataReader's `ExcelReaderFactory.CreateReader` detects from the file's content: .xlsx and .xlsm, .xlsb, and .xls. It does not read CSV: a .csv file throws `ExcelDataReader.Exceptions.HeaderException` ("Invalid file signature").
-- The file is opened for reading without sharing. If another process has it open, Excel included, the constructor throws `IOException`. See "Known problems" below.
-- `new Workbook(filePath, true)` copies the file first, into the folder `Exceleration.dll` was loaded from, under the same file name, and reads the copy. It replaces a file of that name in that folder, leaves the copy there afterwards, and `FilePath` then names the copy.
+- The file is opened for reading and shared with other readers and writers, so a workbook that Excel, another process or another thread has open can be read. It throws `IOException` only when another process holds the file without sharing it.
+- `new Workbook(filePath, true)` copies the file first, into the folder `Exceleration.dll` was loaded from, under the same file name, and reads the copy. It replaces a file of that name in that folder, leaves the copy there afterwards, and `FilePath` then names the copy. A file that is already in that folder is read where it is.
 - Each constructor registers `CodePagesEncodingProvider.Instance` with `Encoding.RegisterProvider`, which ExcelDataReader needs for the code pages of older .xls files. The registration applies to the whole process.
 - `Name` is the file name of the path you passed, and `Sheets` lists the sheets in workbook order.
 
@@ -138,8 +138,6 @@ Console.WriteLine(wb["Copy"]["A3"].Value);       // Pear
 
 ## Known problems in 1.1.1.4
 
-- The constructor opens the file without sharing, so it fails while Excel, or another `Workbook` on another thread, has the file open.
-- `new Workbook(path, true)` throws `IOException` when the file is already in the folder it copies to, because it copies the file onto itself.
 - `ToNullable<T>(false)` returns `null` on a failed conversion, exactly like `ToNullable<T>()`.
 - `AddSheet` compares names with case while `wb[name]` ignores it, so a sheet named "sheet1" can be added next to "Sheet1" and cannot be found by name.
 - `AddSheet(table, name)` renames the caller's `DataTable` and keeps it, so later changes to the table change the sheet. `AddSheet(sheet)` with a sheet from another workbook leaves its `Parent` pointing at that workbook.
