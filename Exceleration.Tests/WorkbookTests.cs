@@ -67,12 +67,13 @@ public class WorkbookTests
     [InlineData("data.csv", "a,b\n1,2\n")]
     [InlineData("text.xlsx", "not a workbook")]
     [InlineData("empty.xlsx", "")]
-    public void A_file_that_is_not_a_workbook_throws_HeaderException(string name, string content)
+    public void A_file_that_is_not_a_workbook_throws_InvalidDataException(string name, string content)
     {
         using var folder = new TempFolder();
         File.WriteAllText(folder.File(name), content);
 
-        Assert.Throws<HeaderException>(() => new Workbook(folder.File(name)));
+        var e = Assert.Throws<InvalidDataException>(() => new Workbook(folder.File(name)));
+        Assert.IsType<HeaderException>(e.InnerException);
     }
 
     [Fact]
@@ -97,7 +98,9 @@ public class WorkbookTests
             + "<row r=\"1\"><c r=\"A1\" t=\"inlineStr\"><is><t>&e;</t></is></c></row></sheetData></worksheet>";
         var path = Xlsx.WriteRaw(folder.File("dtd.xlsx"), ("Sheet1", xml));
 
-        Assert.Throws<XmlException>(() => new Workbook(path));
+        var e = Assert.Throws<InvalidDataException>(() => new Workbook(path));
+        Assert.IsType<XmlException>(e.InnerException);
+        Assert.DoesNotContain("SECRET", e.ToString());
     }
 
     [Fact]

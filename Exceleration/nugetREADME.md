@@ -103,7 +103,8 @@ Console.WriteLine(wb["Copy"]["A3"].Value);       // Pear
 ## How a workbook is read
 
 - `new Workbook(filePath)` reads every sheet of the file into memory and closes it before returning. Later changes to the file are not seen; construct a new `Workbook` to read them.
-- It reads the formats ExcelDataReader's `ExcelReaderFactory.CreateReader` detects from the file's content: .xlsx and .xlsm, .xlsb, and .xls. It does not read CSV: a .csv file throws `ExcelDataReader.Exceptions.HeaderException` ("Invalid file signature").
+- It reads the formats ExcelDataReader's `ExcelReaderFactory.CreateReader` detects from the file's content: .xlsx and .xlsm, .xlsb, and .xls. It does not read CSV.
+- A file it cannot read, a CSV file, any other file that is not a workbook, or a damaged workbook, throws `System.IO.InvalidDataException` naming the file, with the exception ExcelDataReader or .NET raised as its `InnerException`. A missing file throws `FileNotFoundException`, and a file that cannot be opened `IOException`.
 - The file is opened for reading and shared with other readers and writers, so a workbook that Excel, another process or another thread has open can be read. It throws `IOException` only when another process holds the file without sharing it.
 - `new Workbook(filePath, true)` copies the file first, into the folder `Exceleration.dll` was loaded from, under the same file name, and reads the copy. It replaces a file of that name in that folder, leaves the copy there afterwards, and `FilePath` then names the copy. A file that is already in that folder is read where it is.
 - Each constructor registers `CodePagesEncodingProvider.Instance` with `Encoding.RegisterProvider`, which ExcelDataReader needs for the code pages of older .xls files. The registration applies to the whole process.
@@ -124,8 +125,14 @@ Console.WriteLine(wb["Copy"]["A3"].Value);       // Pear
 
 ## Reading files you did not create
 
-- The whole workbook is held in memory, and a sheet takes room for every cell from A1 to its last used cell, empty or not. A 1.6 KB .xlsx whose only values are in A1 and CV100000 becomes a 100,000 by 100 table and took about 0.9 GB to read. Exceleration has no size limit, so check where a file comes from and how large it is before you read it.
-- A file that is not a workbook, or is damaged, throws whatever ExcelDataReader or .NET raised while reading it, for example `ExcelDataReader.Exceptions.HeaderException`, `System.IO.InvalidDataException` for a damaged .zip, or `System.Xml.XmlException` for broken XML. An .xlsx part with a DTD is refused with `XmlException`, so external entities are not resolved.
+- The whole workbook is held in memory, and a sheet takes room for every cell from A1 to its last used cell, empty or not. A 1.6 KB .xlsx whose only values are in A1 and CV100000 becomes a 100,000 by 100 table and took about 0.9 GB to read. `new Workbook(filePath)` sets no limit. For a workbook from somewhere you do not control, pass one:
+
+  ```csharp
+  var wb = new Workbook(path, false, maxCellsPerSheet: 1_000_000);
+  ```
+
+  A sheet whose used range, rows times columns, is larger than the limit throws `InvalidDataException` before any sheet is read, naming the sheet and its size.
+- A file that is not a workbook, or is damaged, throws `InvalidDataException`; the `InnerException` says what the parse hit, for example `ExcelDataReader.Exceptions.HeaderException` for a file of another kind or `System.Xml.XmlException` for broken XML. An .xlsx part with a DTD is refused the same way, with an `XmlException` inside, so external entities are not resolved.
 - Pass `true` for the copy only when you control the file name, because the copy replaces any file of that name in the application's folder.
 
 ## Attributions
