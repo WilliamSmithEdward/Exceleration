@@ -89,30 +89,47 @@ namespace Exceleration
         }
 
         /// <summary>
-        /// Adds a worksheet to the workbook.
+        /// Adds a copy of a worksheet, from this workbook or another, to the workbook. The copy belongs to this workbook;
+        /// the worksheet passed in is not changed.
         /// </summary>
-        /// <param name="sheet">The worksheet to add.</param>
-        /// <exception cref="ArgumentException">Thrown if a worksheet with the same name, compared with case, already exists.</exception>
+        /// <param name="sheet">The worksheet to copy.</param>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="sheet"/> is null.</exception>
+        /// <exception cref="ArgumentException">Thrown if a worksheet with the same name, compared without regard to case, already exists.</exception>
         public void AddSheet(Worksheet sheet)
         {
-            if (Sheets.Any(x => x.Name.Equals(sheet.Name))) throw new ArgumentException($"Worksheet named '{ sheet.Name }' already exists.");
+            ArgumentNullException.ThrowIfNull(sheet);
+            CheckNameIsFree(sheet.Name);
 
-            Sheets.Add(sheet);
+            Sheets.Add(new Worksheet(sheet.DataTable.Copy(), this));
         }
 
         /// <summary>
-        /// Adds a worksheet with the specified name to the workbook, using the given DataTable.
+        /// Adds a worksheet with the specified name to the workbook, made from a copy of the given DataTable.
+        /// The table passed in is not changed, and later changes to it do not reach the worksheet.
         /// </summary>
         /// <param name="table">The DataTable representing the worksheet data.</param>
-        /// <param name="workSheetName">The name of the worksheet to add. The table's <see cref="DataTable.TableName"/> is set to it.</param>
-        /// <exception cref="ArgumentException">Thrown if a worksheet with the same name, compared with case, already exists.</exception>
+        /// <param name="workSheetName">The name of the worksheet to add.</param>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="table"/> or <paramref name="workSheetName"/> is null.</exception>
+        /// <exception cref="ArgumentException">Thrown if a worksheet with the same name, compared without regard to case, already exists.</exception>
         public void AddSheet(DataTable table, string workSheetName)
         {
-            if (Sheets.Any(x => x.Name.Equals(workSheetName))) throw new ArgumentException($"Worksheet named '{ workSheetName }' already exists.");
+            ArgumentNullException.ThrowIfNull(table);
+            ArgumentNullException.ThrowIfNull(workSheetName);
+            CheckNameIsFree(workSheetName);
 
-            table.TableName = workSheetName;
+            var copy = table.Copy();
+            copy.TableName = workSheetName;
 
-            Sheets.Add(new Worksheet(table, this));
+            Sheets.Add(new Worksheet(copy, this));
+        }
+
+        // Sheet names compare as the indexer finds them, and as Excel compares them: without regard to case.
+        private void CheckNameIsFree(string name)
+        {
+            if (Sheets.Any(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
+            {
+                throw new ArgumentException($"Worksheet named '{name}' already exists.");
+            }
         }
 
         // Copying a file onto itself fails, because File.Copy opens the destination for writing while it
