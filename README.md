@@ -128,18 +128,13 @@ Console.WriteLine(wb["Copy"]["A3"].Value);       // Pear
 - `To<T>()` converts with `Convert.ChangeType`, which uses the current culture and rounds a fractional number to the nearest even integer (1.5 and 2.5 both give 2). It returns `default(T)` when the conversion fails, or throws `InvalidCastException` with `To<T>(false)`.
 - `ToNullable<T>()` returns `null` for an empty cell, a cell that holds only spaces, or a value that does not convert. `ToNullable<T>(false)` returns `default(T)`, such as 0, for a value that does not convert, and still `null` for an empty or blank cell. `IsParseable<T>()` returns `false` for an empty or blank cell and for a value that does not convert.
 - `ToString()` returns `Value.ToString()`, an empty string for an empty cell.
-- `wb.AddSheet(table, name)` adds a sheet made from a `DataTable`, and `wb.AddSheet(sheet)` adds an existing `Worksheet`. Both throw `ArgumentException` when a sheet with the same name, compared with case, is already there. Nothing is written back to the file.
+- `wb.AddSheet(table, name)` adds a sheet made from a copy of a `DataTable`, so the table you pass keeps its name and later changes to it do not reach the sheet. `wb.AddSheet(sheet)` adds a copy of a `Worksheet` from this or another workbook; the copy's `Parent` is this workbook, and the sheet you pass is not changed. Both throw `ArgumentException` when a sheet with the same name, ignoring case, is already there. Nothing is written back to the file. Adding to `Sheets` directly skips the name check.
 
 ## Reading files you did not create
 
 - The whole workbook is held in memory, and a sheet takes room for every cell from A1 to its last used cell, empty or not. A 1.6 KB .xlsx whose only values are in A1 and CV100000 becomes a 100,000 by 100 table and took about 0.9 GB to read. Exceleration has no size limit, so check where a file comes from and how large it is before you read it.
 - A file that is not a workbook, or is damaged, throws whatever ExcelDataReader or .NET raised while reading it, for example `ExcelDataReader.Exceptions.HeaderException`, `System.IO.InvalidDataException` for a damaged .zip, or `System.Xml.XmlException` for broken XML. An .xlsx part with a DTD is refused with `XmlException`, so external entities are not resolved.
 - Pass `true` for the copy only when you control the file name, because the copy replaces any file of that name in the application's folder.
-
-## Known problems in 1.1.1.4
-
-- `AddSheet` compares names with case while `wb[name]` ignores it, so a sheet named "sheet1" can be added next to "Sheet1" and cannot be found by name.
-- `AddSheet(table, name)` renames the caller's `DataTable` and keeps it, so later changes to the table change the sheet. `AddSheet(sheet)` with a sheet from another workbook leaves its `Parent` pointing at that workbook.
 
 ## Attributions
 
