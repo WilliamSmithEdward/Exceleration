@@ -9,7 +9,8 @@
         private readonly int _colIndex;
 
         /// <summary>
-        /// Gets the value stored in the cell.
+        /// Gets the value ExcelDataReader read for the cell: a string, a double for every number, a bool, a DateTime for a cell
+        /// with a date format, or <see cref="DBNull.Value"/> for an empty cell.
         /// </summary>
         public object Value { get; private set; }
 
@@ -24,7 +25,7 @@
         public Worksheet Parent { get; private set; }
 
         /// <summary>
-        /// Gets the data type of the cell's value.
+        /// Gets the data type of the cell's value; <c>typeof(DBNull)</c> for an empty cell.
         /// </summary>
         public Type DataType { get; private set; }
 
@@ -104,7 +105,8 @@
         }
 
         /// <summary>
-        /// Converts the cell's value to the specified type and returns the result. Constrained to type struct.
+        /// Converts the cell's value to the specified type with <see cref="Convert.ChangeType(object, Type)"/>, which uses the current
+        /// culture and rounds a fractional number to the nearest even integer. Constrained to type struct.
         /// </summary>
         /// <typeparam name="T">The target type to which the value should be converted.</typeparam>
         /// <param name="returnDefaultOnConversionError">If true, returns the default value of the target type on conversion error. If false, throws an exception on error.</param>
