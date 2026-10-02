@@ -30,6 +30,8 @@ Console.WriteLine(ws["A2"].Value);            // Apple
 Console.WriteLine(ws.GetCell(3, 2).Address);  // B3
 Console.WriteLine(ws.GetCellValue("C3"));     // 2.25
 Console.WriteLine(ws.GetCellValue(1, 2));     // Qty
+Console.WriteLine(ws["b2"].Offset(1, 1).Value); // 2.25
+Console.WriteLine(ws.Cells.Count);            // 9
 ```
 
 ## Convert values
@@ -111,7 +113,9 @@ Console.WriteLine(wb["Copy"]["A3"].Value);       // Pear
 
 - `wb["Sheet1"]` finds a sheet by name, ignoring case. A name that is not there throws `ArgumentException`.
 - Row 1 of a sheet is row 1: no row is taken as a header. Empty rows and columns before the first value are kept, so a sheet whose only value is in B3 still has B3 at row 3, column 2.
-- Rows and columns are numbered from 1. `GetCell`, `GetCellValue`, `GetRow` and `GetColumn` throw `ArgumentOutOfRangeException` for a row or column outside the sheet's used range.
+- An A1 reference is column letters, in either case, then the row number, and nothing else: "B12" and "b12" are the same cell. Anything else, such as "$B$12", "B12:C13" or " B12", throws `ArgumentException`, and a null reference throws `ArgumentNullException`.
+- Rows and columns are numbered from 1. `GetCell`, `GetCellValue`, `GetRow`, `GetColumn` and `Offset` throw `ArgumentOutOfRangeException` for a row or column outside the sheet's used range; its `ParamName` is `rowNumber` or `colNumber`, and its message gives the sheet's size.
+- `Offset(rows, columns)` returns the cell that many rows down and columns to the right; negative numbers go up and left. `Cells` lists every cell of the used range, row by row.
 - `Value` is what ExcelDataReader read: a `string`, a `double` for every number, a `bool`, a `DateTime` for a cell with a date format, or `DBNull.Value` for an empty cell. A formula cell holds the value Excel last calculated and saved. `DataType` is the type of `Value`, `typeof(DBNull)` for an empty cell.
 - `To<T>()` converts with `Convert.ChangeType`, which uses the current culture and rounds a fractional number to the nearest even integer (1.5 and 2.5 both give 2). It returns `default(T)` when the conversion fails, or throws `InvalidCastException` with `To<T>(false)`.
 - `ToNullable<T>()` returns `null` for an empty cell, a cell that holds only spaces, or a value that does not convert. `IsParseable<T>()` returns `false` in the same cases.
@@ -126,12 +130,6 @@ Console.WriteLine(wb["Copy"]["A3"].Value);       // Pear
 
 ## Known problems in 1.1.1.4
 
-- `Worksheet.Cells` throws `ArgumentOutOfRangeException` for any sheet that has a cell.
-- `Cell.Offset` is off by one row and one column: `ws["B2"].Offset(0, 0)` returns A1, and an offset from row 1 or column A throws.
-- `GetCellValue(string)` reads the row digits backwards, so `GetCellValue("A12")` reads A21, and it accepts letters after the digits ("1A").
-- Lower-case references read the wrong column: `ws["a1"]` and `GetCellValue("a1")` look for column 33, and `GetColumn("b")` for column 34. The `CellListExtensions` methods compare column letters with case.
-- A reference with extra characters is read as the part that looks like one: `ws["A1B"]` and `ws["A1:B2"]` return A1. A row number too large for an `int` throws `OverflowException`.
-- `ArgumentOutOfRangeException` from the cell methods carries its message as the parameter name, so it reads "Specified argument was out of the range of valid values. (Parameter 'Invalid row 0 or column 0 index.')".
 - The constructor opens the file without sharing, so it fails while Excel, or another `Workbook` on another thread, has the file open.
 - `new Workbook(path, true)` throws `IOException` when the file is already in the folder it copies to, because it copies the file onto itself.
 - `ToNullable<T>(false)` returns `null` on a failed conversion, exactly like `ToNullable<T>()`.
