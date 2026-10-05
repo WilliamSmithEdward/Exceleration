@@ -49,13 +49,12 @@ must not break:
   nuget.org through trusted publishing: nuget.org's policy is bound to
   `publish.yml` and the `nuget` environment, so both keep their names, and no
   API key is stored anywhere.
-- **Two READMEs that say the same things.** `README.md` is the GitHub page
-  and `Exceleration/nugetREADME.md` is packed as the nuget.org readme. Change
-  both in the same pull request. They differ only in the badge block, which
-  `nugetREADME.md` leaves out because nuget.org does not render images from
-  api.scorecard.dev. Links in both are absolute, since nuget.org does not
-  resolve relative ones. Compile and run a changed README sample against the
-  library before committing it.
+- **One README for GitHub and NuGet.** The root `README.md` is packed
+  directly as the nuget.org readme. Keep links and image URLs absolute,
+  use NuGet-supported image hosts, and serve the Scorecard badge through
+  `img.shields.io`. Do not add a separate package README.
+  Compile and run a changed README sample against the library before
+  committing it.
 - **The lock file.** Restores run with `--locked-mode` against
   `Exceleration/packages.lock.json`. A new or changed package reference is
   restored without it once, and the updated lock file committed with it. The
