@@ -10,6 +10,12 @@ nuget.org nor the READMEs carried release notes for them. Versions 1.0.0 to
 1.1.1.3 are unlisted on nuget.org; 1.1.1.4 is the listed version. All of
 them target net7.0.
 
+## [2.0.1] - 2026-10-04
+
+* The NuGet package now embeds the root GitHub `README.md`, including its badges, as its only README. The OpenSSF Scorecard badge is served through `img.shields.io`, which NuGet supports.
+* CI and Publish verify that the packaged README exactly matches the root file.
+* No library API or runtime behavior changes.
+
 ## [2.0.0] - 2026-10-02
 
 Cell addressing works as documented: `Worksheet.Cells` and `Cell.Offset` no longer throw or land on the wrong cell, references read in either case and multi-digit rows read correctly, and anything that is not a reference is refused. The constructor reads a workbook that Excel has open, a file that does not parse throws one exception type, and a new overload limits how many cells a sheet from an untrusted file may make the library hold. Several of the fixes change what callers see, hence the major version. ExcelDataReader and ExcelDataReader.DataSet are 3.9.0, up from 3.7.0.

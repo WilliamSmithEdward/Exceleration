@@ -9,13 +9,13 @@
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Description>Reads .xlsx, .xlsm, .xlsb and .xls workbooks into memory through ExcelDataReader and addresses their cells by sheet name, A1 reference, or row and column number, with typed conversion of cell values. Reads only; does not write workbooks.</Description>
 		<Authors>WilliamSmithE</Authors>
-		<PackageReadmeFile>nugetREADME.md</PackageReadmeFile>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<RepositoryUrl>https://github.com/WilliamSmithEdward/Exceleration</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageProjectUrl>https://github.com/WilliamSmithEdward/Exceleration</PackageProjectUrl>
 		<PackageTags>excel;exceldatareader;xlsx;xls;xlsb;workbook;worksheet;spreadsheet;cell;reader</PackageTags>
-		<AssemblyVersion>2.0.0</AssemblyVersion>
-		<PackageVersion>2.0.0</PackageVersion>
+		<AssemblyVersion>2.0.1</AssemblyVersion>
+		<PackageVersion>2.0.1</PackageVersion>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIcon>Exceleration.png</PackageIcon>
 		<Copyright>William Edward Smith, 2023</Copyright>
@@ -32,7 +32,7 @@
 	    <Pack>True</Pack>
 	    <PackagePath>\</PackagePath>
 	  </None>
-	  <None Include="nugetREADME.md">
+	  <None Include="../README.md">
 	    <Pack>True</Pack>
 	    <PackagePath>\</PackagePath>
 	  </None>
