@@ -5,7 +5,7 @@
 [![CI](https://github.com/WilliamSmithEdward/Exceleration/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/WilliamSmithEdward/Exceleration/actions/workflows/ci.yml)
 [![Security](https://github.com/WilliamSmithEdward/Exceleration/actions/workflows/security.yml/badge.svg?branch=main)](https://github.com/WilliamSmithEdward/Exceleration/actions/workflows/security.yml)
 [![Malware scan](https://github.com/WilliamSmithEdward/Exceleration/actions/workflows/malware-scan.yml/badge.svg?branch=main)](https://github.com/WilliamSmithEdward/Exceleration/actions/workflows/malware-scan.yml)
-[![OpenSSF Scorecard](https://img.shields.io/ossf-scorecard/github.com/WilliamSmithEdward/Exceleration)](https://scorecard.dev/viewer/?uri=github.com/WilliamSmithEdward/Exceleration)
+[![OpenSSF Scorecard](https://img.shields.io/ossf-scorecard/github.com/WilliamSmithEdward/Exceleration?label=openssf%20score)](https://scorecard.dev/viewer/?uri=github.com/WilliamSmithEdward/Exceleration)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](https://github.com/WilliamSmithEdward/Exceleration/blob/main/LICENSE)
 
 Exceleration reads Excel workbooks into memory through [ExcelDataReader](https://github.com/ExcelDataReader/ExcelDataReader) and lets you address the cells the way Excel does: by sheet name, by A1 reference, or by row and column number counted from 1. It reads; it does not write workbooks.
